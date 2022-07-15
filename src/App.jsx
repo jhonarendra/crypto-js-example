@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import ButtonComp from './components/ButtonComp';
 import CriptoJs from 'crypto-js'// import the react-json-view component
@@ -12,6 +12,8 @@ function App() {
   const [decryptResult, setDecryptResult] = useState('')
   const [isEncryptJson, setIsEncryptJson] = useState(false)
   const [isDecryptJson, setIsDecryptJson] = useState(false)
+  const [jsonDataEncrypt, setJsonDataEncrypt] = useState({})
+  const [jsonDataDecrypt, setJsonDataDecrypt] = useState({})
 
   const handleFormChange = (e) => {
     const { name, value } = e.target
@@ -32,15 +34,43 @@ function App() {
       let decrypted = CriptoJs.AES.decrypt(form.dataDecrypt, form.passwordDecrypt)
       decrypted = decrypted.toString(CriptoJs.enc.Utf8)
       setDecryptResult(decrypted)
+      setJsonDataDecrypt(JSON.parse(decrypted))
     } catch (error) {
+      setDecryptResult('')
+      setJsonDataDecrypt({})
       return false
     }
   }
+
+  useEffect(() => {
+    if (isEncryptJson) {
+      try {
+        const json = JSON.parse(form.dataEncrypt)
+        setJsonDataEncrypt(json)
+      } catch (err) {
+        setJsonDataEncrypt({})
+        console.log('error', err)
+      }
+    }
+  }, [isEncryptJson])
+
+  
+  useEffect(() => {
+    if (isDecryptJson) {
+      try {
+        const json = JSON.parse(decryptResult)
+        setJsonDataDecrypt(json)
+      } catch (err) {
+        setJsonDataDecrypt({})
+        console.log('error', err)
+      }
+    }
+  }, [isDecryptJson])
   return (
     <>
       <div className='dark:bg-gray-900 dark:text-white min-h-screen grid grid-cols-1 sm:grid-cols-2 sm:gap-4'>
-        <div>
-          encrypt
+        <div className='p-4'>
+          <h3 className='font-medium uppercase py-4'>Encrypt</h3>
           <form onSubmit={onSubmitEncrypt}>
             <div>
               <div className='mb-4'>
@@ -55,7 +85,7 @@ function App() {
               {
                 (!isEncryptJson) ? (
                   <textarea
-                    className='t-form'
+                    className='t-form mb-4 h-48'
                     name="dataEncrypt"
                     value={form.dataEncrypt || ''}
                     onChange={handleFormChange}
@@ -63,12 +93,12 @@ function App() {
                     required
                   ></textarea>
                 ) : (
-                  <ReactJson src={JSON.parse(form.dataEncrypt) || {}} theme="monokai" />
+                  <ReactJson src={jsonDataEncrypt} theme="monokai" />
                 )
               }
               
               <input
-                className='t-form'
+                className='t-form mb-4'
                 type="text"
                 name="passwordEncrypt"
                 value={form.passwordEncrypt || ''}
@@ -79,7 +109,7 @@ function App() {
               <ButtonComp
                 btnType="submit"
                 btnText="Encrypt"
-                btnStyle=" w-full text-center "
+                btnStyle=" w-full text-center"
               />
             </div>
           </form>
@@ -89,8 +119,8 @@ function App() {
             { encryptResult }
           </div>
         </div>
-        <div>
-          decrypt
+        <div className='p-4'>
+          <h3 className='font-medium uppercase py-4'>Decrypt</h3>
           <div className='mb-4'>
             <SwitchComp
               enabled={isDecryptJson}
@@ -103,7 +133,7 @@ function App() {
           <form onSubmit={onSubmitDecrypt}>
             <div>
               <textarea
-                className='t-form'
+                className='t-form mb-4 h-48'
                 name="dataDecrypt"
                 value={form.dataDecrypt || ''}
                 onChange={handleFormChange}
@@ -111,7 +141,7 @@ function App() {
                 required
               ></textarea>
               <input
-                className='t-form'
+                className='t-form mb-4'
                 type="text"
                 name="passwordDecrypt"
                 value={form.passwordDecrypt || ''}
@@ -134,8 +164,8 @@ function App() {
                 { decryptResult }
               </div>
             ) : (
-              <div className='max-h-96 overflow-y-auto'>
-                <ReactJson src={JSON.parse(decryptResult) || {}} theme="monokai" />
+              <div className='max-h-96 overflow-y-auto mt-4'>
+                <ReactJson src={jsonDataDecrypt} theme="monokai" />
               </div>
             )
           }
