@@ -43,6 +43,13 @@ function App() {
       if (isDecryptJson) {
         setJsonDataDecrypt(JSON.parse(decrypted))
       }
+      if (decrypted === '') {
+        toast.error('Cannot decrypt data', {
+          theme: 'colored',
+          autoClose: 1000,
+          hideProgressBar: true
+        })
+      }
       setDataCopied([false, false])
     } catch (error) {
       setDecryptResult('')
@@ -101,7 +108,6 @@ function App() {
         setJsonDataEncrypt(json)
       } catch (err) {
         setJsonDataEncrypt({})
-        console.log('error', err)
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -180,7 +186,7 @@ function App() {
 
                         {
                           (e === 'Encrypt' && isEncryptJson) ? (
-                            <div className='max-h-96 overflow-y-auto mt-4'>
+                            <div className='max-h-96 overflow-y-auto mt-4 mb-4'>
                               <ReactJson src={jsonDataEncrypt} theme="ocean" />
                             </div>
                           ) : ''
@@ -218,7 +224,7 @@ function App() {
                           <textarea
                             id={(e === 'Encrypt') ? 'encryptedResult' : 'decryptedResult'}
                             className='t-form mt-4 h-48'
-                            defaultValue={(e === 'Encrypt') ? encryptResult : decryptResult}
+                            value={(e === 'Encrypt') ? encryptResult : decryptResult}
                             disabled
                           />
                           <button
