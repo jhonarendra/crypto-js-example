@@ -5,6 +5,7 @@ import CriptoJs from 'crypto-js'// import the react-json-view component
 import ReactJson from 'react-json-view'
 import SwitchComp from './components/SwitchComp';
 import { Tab } from '@headlessui/react';
+import { ClipboardIcon } from '@heroicons/react/outline';
 
 function App() {
 
@@ -44,6 +45,18 @@ function App() {
       setJsonDataDecrypt({})
       return false
     }
+  }
+
+  const copyToClipboard = (e) => {
+    let el = null
+    if (e === 'Encrypt') {
+      el = document.getElementById('encryptedResult')      
+    } else {
+      el = document.getElementById('decryptedResult')
+    }
+    el.select()
+    el.setSelectionRange(0, 99999)
+    navigator.clipboard.writeText(el.value)
   }
 
   useEffect(() => {
@@ -103,7 +116,7 @@ function App() {
                   key={e}
                 >
                   <div className='p-4'>
-                    <h3 className='font-medium uppercase py-4'>
+                    <h3 className='font-medium uppercase pb-4'>
                       { e }
                     </h3>
                     <form onSubmit={(e === 'Encrypt') ? onSubmitEncrypt : onSubmitDecrypt}>
@@ -118,32 +131,21 @@ function App() {
                           </span>
                         </div>
                         {
-                          (e === 'Encrypt' && !isEncryptJson) ? (
+                          ((e === 'Encrypt' && !isEncryptJson) || e === 'Decrypt') ? (
                             <textarea
                               className='t-form mb-4 h-48'
-                              name="dataEncrypt"
-                              value={form.dataEncrypt || ''}
+                              name={(e === 'Encrypt') ? 'dataEncrypt' : 'dataDecrypt'}
+                              value={(e === 'Encrypt') ? form.dataEncrypt : form.dataDecrypt}
                               onChange={handleFormChange}
-                              placeholder="Data to Encrypt"
+                              placeholder={`Data to ${e}`}
                               required
                             ></textarea>
                           ) : ''
                         }
+
                         {
                           (e === 'Encrypt' && isEncryptJson) ? (
                             <ReactJson src={jsonDataEncrypt} theme="monokai" />
-                          ) : ''
-                        }
-                        {
-                          (e === 'Decrypt') ? (
-                            <textarea
-                              className='t-form mb-4 h-48'
-                              name="dataDecrypt"
-                              value={form.dataDecrypt || ''}
-                              onChange={handleFormChange}
-                              placeholder="Data to Decrypt"
-                              required
-                            ></textarea>
                           ) : ''
                         }
                         
@@ -164,24 +166,25 @@ function App() {
                       </div>
                     </form>
                     {
-                      (e === 'Encrypt') ? (
-                        <div
-                          className='mt-4 p-4 border dark:border-gray-700 break-words'
-                        >
-                          { encryptResult }
+                      (e === 'Encrypt' || (e === 'Decrypt' && !isDecryptJson)) ? (
+                        <div className='relative'>
+                          <textarea
+                            id={(e === 'Encrypt') ? 'encryptedResult' : 'decryptedResult'}
+                            className='t-form mt-4'
+                            value={(e === 'Encrypt') ? encryptResult : decryptResult}
+                            onChange={null}
+                          />
+                          <button
+                            type="button"
+                            className='absolute top-2 right-2'
+                            onClick={() => copyToClipboard(e)}
+                          >
+                            <ClipboardIcon className='w-5 h-5' />
+                          </button>
                         </div>
                       ) : ''
                     }
 
-                    {
-                      (e === 'Decrypt' && !isDecryptJson) ? (
-                        <div
-                          className='mt-4 p-4 border dark:border-gray-700 break-words'
-                        >
-                          { decryptResult }
-                        </div>
-                      ) : ''
-                    }
                     {
                       (e === 'Decrypt' && isDecryptJson) ? (
                         <div className='max-h-96 overflow-y-auto mt-4'>
@@ -197,29 +200,7 @@ function App() {
         </Tab.Group>
       </div>
       <div className='hidden'>
-      <button className="
-        relative
-        rounded-md
-        shadow-sm
-        font-medium
-        text-sm
-        uppercase
-        transition-all
-      px-4 py-2 
-          text-white
-        
-          focus:outline-none
-          focus:ring-2
-          focus:ring-offset-2
-          focus:ring-brand-500
-        
-          bg-brand-600
-          dark:bg-brand-800
-          hover:bg-brand-500
-          hover:dark:bg-brand-700
-        w-full text-center " type="submit"><span className="
-              
-            ">Encrypt</span></button>
+        <button className="  relative  rounded-md  shadow-sm  font-medium  text-sm  uppercase  transition-allpx-4 py-2     text-white      focus:outline-none    focus:ring-2    focus:ring-offset-2    focus:ring-brand-500      bg-brand-600    dark:bg-brand-800    hover:bg-brand-500    hover:dark:bg-brand-700  w-full text-center " type="submit"><span className="              ">Encrypt</span></button>
       </div>
     </>
   );
