@@ -1,7 +1,8 @@
 {
   "name": "crypto-js-example",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
+  "homepage": "/crypto-js-example",
   "dependencies": {
     "@headlessui/react": "^1.6.6",
     "@heroicons/react": "^1.0.6",
